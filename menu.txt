@@ -1,0 +1,12 @@
+1|Chicken Karahi|850|Main Course|1
+2|Mutton Karahi|1200|Main Course|1
+3|Beef Biryani|450|Main Course|1
+4|Chicken Tikka|650|Starter|1
+5|Seekh Kebab (6pc)|480|Starter|1
+6|Naan|60|Bread|1
+7|Tandoori Roti|40|Bread|1
+8|Raita|80|Side|1
+9|Lassi (Sweet)|150|Drink|1
+10|Cold Drink|80|Drink|1
+11|Gulab Jamun (4pc)|200|Dessert|1
+12|Kheer|150|Dessert|1
