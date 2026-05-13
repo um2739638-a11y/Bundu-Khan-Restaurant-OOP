@@ -1,24 +1,22 @@
-﻿#pragma once
+// UIHelper: Utility class for drawing UI elements using SFML
+#pragma once
 #include <SFML/Graphics.hpp>
 #include <SFML/Window.hpp>
 #include <SFML/System.hpp>
 #include <string>
-#include <algorithm>
-#include "DataModels.h"
-
 using namespace sf;
-
-const int WINDOW_WIDTH = 1100;
-const int WINDOW_HEIGHT = 700;
+using namespace std;
 
 class UIHelper {
 public:
-    // ── Draw a filled rectangle with optional outline ──────────────────────
+
+    // Draws a filled rectangle with an optional border
     static void drawRect(RenderWindow& win,
         float x, float y, float w, float h,
         Color color,
         Color outline = Color::Transparent,
-        float outlineThick = 0) {
+        float outlineThick = 0)
+    {
         RectangleShape rect(Vector2f(w, h));
         rect.setPosition(x, y);
         rect.setFillColor(color);
@@ -27,11 +25,11 @@ public:
         win.draw(rect);
     }
 
-    // ── Draw plain text ───────────────────────────────────────────────────
+    // Draws a text string at the given position with specified size and color
     static void drawText(RenderWindow& win, Font& font,
-        const string& text,
-        float x, float y,
-        unsigned int size, Color color) {
+        const string& text, float x, float y,
+        unsigned int size, Color color)
+    {
         Text t;
         t.setFont(font);
         t.setString(text);
@@ -41,46 +39,59 @@ public:
         win.draw(t);
     }
 
-    // ── Draw a button; returns true when mouse is hovering ────────────────
+    // Draws a button and returns true if the mouse is hovering over it.
+    // The button lightens slightly on hover to give visual feedback.
     static bool drawButton(RenderWindow& win, Font& font,
         const string& label,
         float x, float y, float w, float h,
         Color bgColor, Color textColor,
-        unsigned int textSize = 18) {
-        Vector2i rawMouse = Mouse::getPosition(win);
-        Vector2f mousePos = win.mapPixelToCoords(rawMouse);
+        unsigned int textSize = 18)
+    {
+        // Convert mouse position to world coordinates
+        Vector2f mousePos = win.mapPixelToCoords(Mouse::getPosition(win));
 
+        // Check if the mouse is inside the button bounds
         bool hovering = (mousePos.x >= x && mousePos.x <= x + w &&
             mousePos.y >= y && mousePos.y <= y + h);
 
-        Color displayColor = hovering
+        // Add 30 to each color channel on hover, capped at 255
+        Color dc = hovering
             ? Color(min(255, (int)bgColor.r + 30),
                 min(255, (int)bgColor.g + 30),
                 min(255, (int)bgColor.b + 30))
             : bgColor;
 
-        drawRect(win, x, y, w, h, displayColor, Color(200, 200, 200), 1);
+        drawRect(win, x, y, w, h, dc, Color(200, 200, 200), 1);
 
+        // Measure the label size to center it inside the button
         Text temp;
         temp.setFont(font);
         temp.setString(label);
         temp.setCharacterSize(textSize);
-        FloatRect textBounds = temp.getLocalBounds();
-        float textX = x + (w - textBounds.width) / 2;
-        float textY = y + (h - textBounds.height) / 2 - 5;
-        drawText(win, font, label, textX, textY, textSize, textColor);
+        FloatRect tb = temp.getLocalBounds();
+
+        drawText(win, font, label,
+            x + (w - tb.width) / 2,
+            y + (h - tb.height) / 2 - 5, // -5 corrects SFML's text baseline offset
+            textSize, textColor);
+
         return hovering;
     }
 
-    // ── Hit-test for a mouse-press event ─────────────────────────────────
+    // Returns true if a left mouse click occurred inside the given rectangle.
+    // Call this inside your event loop, not the draw loop.
     static bool isClicked(Event& event, RenderWindow& win,
-        float x, float y, float w, float h) {
+        float x, float y, float w, float h)
+    {
         if (event.type == Event::MouseButtonPressed &&
-            event.mouseButton.button == Mouse::Left) {
-            Vector2f worldPos = win.mapPixelToCoords(
+            event.mouseButton.button == Mouse::Left)
+        {
+            // Convert the click position to world coordinates
+            Vector2f wp = win.mapPixelToCoords(
                 Vector2i(event.mouseButton.x, event.mouseButton.y));
-            return (worldPos.x >= x && worldPos.x <= x + w &&
-                worldPos.y >= y && worldPos.y <= y + h);
+
+            return (wp.x >= x && wp.x <= x + w &&
+                wp.y >= y && wp.y <= y + h);
         }
         return false;
     }
